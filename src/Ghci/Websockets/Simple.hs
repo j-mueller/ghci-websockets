@@ -5,7 +5,8 @@ module Ghci.Websockets.Simple (
     broadcastText
   , broadcastHtml
   , broadcastPlot
-  -- * Re-exports
+  -- * Re-exports etc.
+  , Message(..)
   , module Websockets
   ) where
 
