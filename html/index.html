@@ -1,0 +1,51 @@
+<!doctype html>
+<html class="no-js" lang="">
+
+<head>
+  <meta charset="utf-8">
+  <title></title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+
+<body>
+
+  <div id="main" style="top: 2%; left:2%; right: 2%; bottom: 2%; position:absolute;"></div>
+  <script>
+    var theDiv = document.getElementById("main");
+
+    var ws = new WebSocket("ws://localhost:9160")
+    ws.onopen = function (event) {
+      console.log("Connection established");
+    };
+    ws.onclose = function (event) {
+      console.log("Connection closed");
+    };
+    ws.onmessage = function (event) {
+      var obj = JSON.parse(event.data);
+      console.log(obj);
+      switch (obj.tag) {
+        case "text":
+          console.log("text");
+          theDiv.innerHTML = "";
+          theDiv.textContent = obj.contents;
+          break;
+        case "html":
+          console.log("html");
+          theDiv.innerHTML = obj.contents;
+          break;
+        case "plot":
+          console.log("plot");
+          theDiv.innerHTML = "";
+          var plotTarget = document.createElement("div");
+          plotTarget.style = "width: 100%; height: 100%";
+          theDiv.appendChild(plotTarget);
+          Plotly.newPlot(plotTarget, obj.contents.data, obj.contents.layout);
+          break;
+      }
+    };
+  </script>
+</body>
+
+</html>
