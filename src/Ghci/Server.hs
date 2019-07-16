@@ -4,9 +4,9 @@ module Ghci.Server(
     start
   , startConfig
   -- * Sending messages
-  , broadcastText
-  , broadcastHtml
-  , broadcastPlot
+  , sendText
+  , sendHtml
+  , sendPlot
   -- * Configuration
   , Config
   , Verbosity(..)
@@ -21,13 +21,13 @@ import           Ghci.Server.Config              (Config, Verbosity (..),
                                                   cfWSPort, defaultConfig)
 import qualified Ghci.Server.Http.Internal       as HTTP
 import qualified Ghci.Server.Websockets.Internal as WS
-import           Ghci.Server.Websockets.Message  (broadcastHtml, broadcastPlot,
-                                                  broadcastText)
+import           Ghci.Server.Websockets.Message  (sendHtml, sendPlot,
+                                                  sendText)
 
 -- $docs
 -- This modules implements a websocket server whose state survives GHCi
 -- reloads. To use it, run 'start' once  per GHCi session, and then
--- use 'broadcastText', 'broadcastHtml' and 'broadcastPlot' to show the
+-- use 'sendText', 'sendHtml' and 'sendPlot' to show the
 -- values on all clients that are currently connected.
 
 -- | Start the websocket and HTTP servers using the config

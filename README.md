@@ -6,7 +6,7 @@ With `ghci-websockets` you can send data from GHCi straight to the browser, usin
 
 ## Contents
 
-The `Ghci.Server.Websockets` module implements the actual websocket server, broadcasting JSON objects to all clients. `Ghci.Server.Http` servers the index.html page that goes with the messages defined in `Ghci.Websockets.Message`.
+The `Ghci.Server.Websockets` module implements the actual websocket server, sending JSON objects to all clients. `Ghci.Server.Http` servers the index.html page that goes with the messages defined in `Ghci.Websockets.Message`.
 
 ## Quickstart
 
@@ -14,7 +14,7 @@ The `Ghci.Server.Websockets` module implements the actual websocket server, broa
 * Run `cabal new-repl`
 * Run `Ghci.Server.start`
 * Open `localhost:3000` in a browser
-* In GHCi, run `Ghci.Server.broadcastText "hello"` (see also `broadcastHtml` and `broadcastPlot` from the same module). You may need `:set -XOverloadedStrings`.
+* In GHCi, run `Ghci.Server.sendText "hello"` (see also `sendHtml` and `sendPlot` from the same module). You may need `:set -XOverloadedStrings`.
 
 ## Warning
 

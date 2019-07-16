@@ -2,6 +2,7 @@
 
 # current
 
+* Rename `broadcast` -> `send`
 * Better module layout
 * Server the index.html page over HTTP
 

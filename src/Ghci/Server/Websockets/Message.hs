@@ -2,9 +2,9 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Ghci.Server.Websockets.Message (
   -- $docs
-    broadcastText
-  , broadcastHtml
-  , broadcastPlot
+    sendText
+  , sendHtml
+  , sendPlot
   , Message(..)
   ) where
 
@@ -12,7 +12,7 @@ import           Data.Aeson
 import           Data.Text                       (Text)
 import qualified Data.Text                       as Text
 
-import           Ghci.Server.Websockets.Internal (broadcast)
+import           Ghci.Server.Websockets.Internal (send)
 
 -- $docs
 -- This module provides the 'Message' data type, and various constructors for
@@ -23,7 +23,7 @@ import           Ghci.Server.Websockets.Internal (broadcast)
 -- 1. Start a GHCi session and run 'Ghci.Websockets.initialiseDef'
 -- 2. Open @html/index.html@ in a browser (it's self-contained, no http server
 --    required)
--- 3. Use 'broadcastText', 'broadcastHtml' and 'broadcastPlot' to show things
+-- 3. Use 'sendText', 'sendHtml' and 'sendPlot' to show things
 --    in the browser window.
 
 data Message =
@@ -46,26 +46,26 @@ instance ToJSON Message where
 
 -- | Show a string.
 --
--- >>> broadcastText "hello"
+-- >>> sendText "hello"
 --
-broadcastText :: Text -> IO ()
-broadcastText = broadcast . MsgText
+sendText :: Text -> IO ()
+sendText = send . MsgText
 
 -- | Insert some HTML into the DOM.
 --
--- >>> broadcastHtml "<h1>Hello</h1>"
+-- >>> sendHtml "<h1>Hello</h1>"
 --
-broadcastHtml :: Text -> IO ()
-broadcastHtml = broadcast . MsgHtml
+sendHtml :: Text -> IO ()
+sendHtml = send . MsgHtml
 
 -- | Show a Plotly 2D line plot of the given points.
 --
--- >>> broadcastPlot [(1, 2), (2, 5), (3, 4), (4, 3)]
+-- >>> sendPlot [(1, 2), (2, 5), (3, 4), (4, 3)]
 --
--- >>> broadcastPlot $ fmap (\i -> let i' = (fromIntegral i / 10) in (i', sin i')) [1..100]
+-- >>> sendPlot $ fmap (\i -> let i' = (fromIntegral i / 10) in (i', sin i')) [1..100]
 --
-broadcastPlot :: [(Double, Double)] -> IO ()
-broadcastPlot ns = broadcast (MsgPlotly [dt] ly) where
+sendPlot :: [(Double, Double)] -> IO ()
+sendPlot ns = send (MsgPlotly [dt] ly) where
   ly = object ["margin" .= object ["t" .= (0 :: Int)]]
   dt =
     let (xs, ys) = unzip ns in

@@ -34,8 +34,8 @@ theStore = Store.Store 0
 
 -- | Send a JSON object to all clients. Throws an exception if 'initialise' has
 --   not been run first.
-broadcast :: ToJSON a => a -> IO ()
-broadcast t = Store.withStore theStore (readMVar >=> go) where
+send :: ToJSON a => a -> IO ()
+send t = Store.withStore theStore (readMVar >=> go) where
   go s = traverse_ (`WS.sendTextData` msg) (unServerState s)
   msg = Aeson.encode t
 
