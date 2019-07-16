@@ -1,6 +1,6 @@
 cabal-version: 2.2
 name: ghci-websockets
-version: 0.0.1
+version: 0.0.2
 license: BSD-3-Clause
 license-file: LICENSE
 copyright: Copyright (C) 2019 Jann Mueller

@@ -1,6 +1,6 @@
 # Changelog
 
-# current
+# v0.0.2 (2019-07-16)
 
 * Rename `broadcast` -> `send`
 * Better module layout
