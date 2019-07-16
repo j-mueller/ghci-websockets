@@ -1,20 +1,18 @@
 {-# LANGUAGE LambdaCase        #-}
 {-# LANGUAGE OverloadedStrings #-}
-module Ghci.Websockets.Simple (
+module Ghci.Server.Websockets.Message (
   -- $docs
     broadcastText
   , broadcastHtml
   , broadcastPlot
-  -- * Re-exports etc.
   , Message(..)
-  , module Websockets
   ) where
 
 import           Data.Aeson
-import           Data.Text       (Text)
-import qualified Data.Text       as Text
+import           Data.Text                       (Text)
+import qualified Data.Text                       as Text
 
-import           Ghci.Websockets as Websockets
+import           Ghci.Server.Websockets.Internal (broadcast)
 
 -- $docs
 -- This module provides the 'Message' data type, and various constructors for

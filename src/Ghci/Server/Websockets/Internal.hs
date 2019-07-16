@@ -1,15 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
-module Ghci.Websockets(
-  -- $docs
-  --
-    initialise
-  , initialiseDef
-  , broadcast
-  -- * Configuration
-  , Config(..)
-  , Verbosity(..)
-  , defaultConfig
-  ) where
+module Ghci.Server.Websockets.Internal where
 
 import           Control.Concurrent (MVar, forkIO, modifyMVar, modifyMVar_,
                                      newMVar, readMVar)
@@ -23,33 +13,7 @@ import qualified Data.Text          as Text
 import qualified Foreign.Store      as Store
 import qualified Network.WebSockets as WS
 
--- $docs
--- This modules implements a websocket server whose state survives GHCi 
--- reloads. To use it, run 'initialiseDef' once  per GHCi session, and then 
--- call 'broadcast' to send a JSON value to all clients that are currently 
--- connected. All messages from clients are ignored.
-
--- | What to do with log messages
-data Verbosity =
-      Verbose -- ^ Write all log messages to stdout
-    | Silent -- ^ Ignore all log messages
-    deriving (Eq, Ord, Show)
-
--- | Server configuration
-data Config =
-  Config
-    { port      :: Int -- ^ What port to start the server on
-    , verbosity :: Verbosity -- ^ What to do with log messages
-    }
-
-logStr :: Config -> String -> IO ()
-logStr c s = case verbosity c of
-  Silent  -> pure ()
-  Verbose -> putStrLn s
-
--- | Default config, use port 9160 and ignore all log messages.
-defaultConfig :: Config
-defaultConfig = Config 9160 Silent
+import           Ghci.Server.Config (Config, cfWSPort, logStr)
 
 newtype ServerState = ServerState { unServerState :: Map.Map ConnectionID WS.Connection }
 
@@ -75,15 +39,11 @@ broadcast t = Store.withStore theStore (readMVar >=> go) where
   go s = traverse_ (`WS.sendTextData` msg) (unServerState s)
   msg = Aeson.encode t
 
--- | Start the websocket server using the default config (port 9160). Call once
---   per GHCi session.
-initialiseDef :: IO ()
-initialiseDef = initialise defaultConfig
-
 -- | Start the websocket server using the port specified in the config. Call
 --   once per GHCi session.
-initialise :: Config -> IO ()
-initialise c@Config{port=p} = do
+startConfig :: Config -> IO ()
+startConfig c = do
+  let p = cfWSPort c
   state <- newMVar serverState
   Store.writeStore theStore state
   logStr c ("Starting websocket server on port " ++ show p)
