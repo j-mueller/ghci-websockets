@@ -12,8 +12,6 @@ module Ghci.Server.Websockets.Message (
   ) where
 
 import           Data.Aeson
-import           Data.Map                        (Map)
-import qualified Data.Map                        as Map
 import           Data.Text                       (Text)
 import qualified Data.Text                       as Text
 
@@ -78,12 +76,12 @@ sendPlot ns = send (MsgPlotly [dt] ly) where
 
 -- | Show groups of bar charts
 --
--- >>> sendGroupedBarChart (Map.fromList [("giraffes", Map.fromList [("SF Zoo", 20), ("LA Zoo", 12)]), ("monkeys", Map.fromList [("SF Zoo", 10), ("LA Zoo", 12)])])
+-- >>> sendGroupedBarChart ([("giraffes", [("SF Zoo", 20), ("LA Zoo", 12)]), ("monkeys", [("SF Zoo", 10), ("LA Zoo", 12)])])
 -- 
-sendGroupedBarChart :: Map String (Map String Double) -> IO ()
+sendGroupedBarChart :: [(String, [(String, Double)])] -> IO ()
 sendGroupedBarChart mp = send (MsgPlotly traces ly) where
       ly = object ["barmode" .= ("group" :: String)]
-      traces = trace . fmap Map.toList <$> Map.toList mp
+      traces = fmap trace mp
       trace (nm, items) =
         object 
           [ "x" .= fmap fst items
