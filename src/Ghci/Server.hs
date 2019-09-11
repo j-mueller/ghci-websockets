@@ -7,6 +7,9 @@ module Ghci.Server(
   , sendText
   , sendHtml
   , sendPlot
+  , sendGroupedBarChart
+  , sendBoxPlots
+  , BoxDirection(..)
   -- * Configuration
   , Config
   , Verbosity(..)
@@ -22,7 +25,7 @@ import           Ghci.Server.Config              (Config, Verbosity (..),
 import qualified Ghci.Server.Http.Internal       as HTTP
 import qualified Ghci.Server.Websockets.Internal as WS
 import           Ghci.Server.Websockets.Message  (sendHtml, sendPlot,
-                                                  sendText)
+                                                  sendText, sendGroupedBarChart, sendBoxPlots, BoxDirection(..))
 
 -- $docs
 -- This modules implements a websocket server whose state survives GHCi

@@ -5,10 +5,15 @@ module Ghci.Server.Websockets.Message (
     sendText
   , sendHtml
   , sendPlot
+  , sendGroupedBarChart
+  , sendBoxPlots
+  , BoxDirection(..)
   , Message(..)
   ) where
 
 import           Data.Aeson
+import           Data.Map                        (Map)
+import qualified Data.Map                        as Map
 import           Data.Text                       (Text)
 import qualified Data.Text                       as Text
 
@@ -70,3 +75,41 @@ sendPlot ns = send (MsgPlotly [dt] ly) where
   dt =
     let (xs, ys) = unzip ns in
     object [ "x" .= xs, "y" .= ys ]
+
+-- | Show groups of bar charts
+--
+-- >>> sendGroupedBarChart (Map.fromList [("giraffes", Map.fromList [("SF Zoo", 20), ("LA Zoo", 12)]), ("monkeys", Map.fromList [("SF Zoo", 10), ("LA Zoo", 12)])])
+-- 
+sendGroupedBarChart :: Map String (Map String Double) -> IO ()
+sendGroupedBarChart mp = send (MsgPlotly traces ly) where
+      ly = object ["barmode" .= ("group" :: String)]
+      traces = trace . fmap Map.toList <$> Map.toList mp
+      trace (nm, items) =
+        object 
+          [ "x" .= fmap fst items
+          , "y" .= fmap snd items
+          , "name" .= nm
+          , "type" .= ("bar" :: String)
+          ]
+
+-- | Direction of the numerical axis (extent of the box plots)
+data BoxDirection = Vertical | Horizontal
+    deriving (Eq, Ord, Show)
+
+-- | Show a group of box plots
+--
+-- >>> sendBoxPlots Horizontal (Map.fromList [("Set A", [1, 2, 3, 4, 4, 4, 8, 9, 10]), ("Set B", [2, 3, 3, 3, 3, 5, 6, 6, 7])])
+--
+sendBoxPlots :: BoxDirection -> Map String [Double] -> IO ()
+sendBoxPlots d mp = send (MsgPlotly traces ly) where
+  ly = object [] -- TODO: title
+  key = case d of
+    Vertical -> "y"
+    Horizontal -> "x"
+  traces = trace <$> Map.toList mp
+  trace (nm, values) =
+    object
+      [ key    .= values
+      , "type" .= ("box" :: String)
+      , "name" .= nm
+      ]
