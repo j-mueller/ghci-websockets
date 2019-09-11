@@ -98,15 +98,15 @@ data BoxDirection = Vertical | Horizontal
 
 -- | Show a group of box plots
 --
--- >>> sendBoxPlots Horizontal (Map.fromList [("Set A", [1, 2, 3, 4, 4, 4, 8, 9, 10]), ("Set B", [2, 3, 3, 3, 3, 5, 6, 6, 7])])
+-- >>> sendBoxPlots Horizontal [("Set A", [1, 2, 3, 4, 4, 4, 8, 9, 10]), ("Set B", [2, 3, 3, 3, 3, 5, 6, 6, 7])]
 --
-sendBoxPlots :: BoxDirection -> Map String [Double] -> IO ()
-sendBoxPlots d mp = send (MsgPlotly traces ly) where
+sendBoxPlots :: BoxDirection -> [(String, [Double])] -> IO ()
+sendBoxPlots d dat = send (MsgPlotly traces ly) where
   ly = object [] -- TODO: title
   key = case d of
     Vertical -> "y"
     Horizontal -> "x"
-  traces = trace <$> Map.toList mp
+  traces = trace <$> dat
   trace (nm, values) =
     object
       [ key    .= values
