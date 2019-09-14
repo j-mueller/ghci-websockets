@@ -1,3 +1,4 @@
+{-# LANGUAGE TypeApplications  #-}
 {-# LANGUAGE LambdaCase        #-}
 {-# LANGUAGE OverloadedStrings #-}
 module Ghci.Server.Websockets.Message (
@@ -7,6 +8,7 @@ module Ghci.Server.Websockets.Message (
   , sendPlot
   , sendGroupedBarChart
   , sendBoxPlots
+  , sendGauges
   , BoxDirection(..)
   , Message(..)
   ) where
@@ -111,3 +113,28 @@ sendBoxPlots d dat = send (MsgPlotly traces ly) where
       , "type" .= ("box" :: String)
       , "name" .= nm
       ]
+
+-- | Show a list of gauges (individual numbers) with optional 
+--   delta
+--
+--   >>> sendGauges [("Profit", 220, Just 210)]
+--
+sendGauges :: [(String, Double, Maybe Double)] -> IO ()
+sendGauges d = send (MsgPlotly gauges ly) where
+  ly = 
+    object 
+      [ "grid" .= object [ "rows" .= i 1, "columns" .= length d, "pattern" .= s "independent"]
+      ]
+  s = id @String
+  i = id @Int
+  gauges = gauge <$> zip [0..] d
+  gauge (idx, (nm, vl, dlt')) =
+    let dlt = maybe [] (\n -> ["delta" .= object ["reference" .= n]]) dlt' in
+      object 
+        ([ "type" .= s "indicator"
+        , "mode" .= s ("number+gauge" ++ maybe "" (const "+delta") dlt')
+        , "gauge" .= object [ "shape" .= s "bullet" ]
+        , "value" .= vl
+        , "title" .= nm
+        , "domain" .= object ["row" .= i 0, "column" .= i idx]
+        ] ++ dlt)
